@@ -39,3 +39,47 @@ def ask(question) -> str:
     response = chat.send_message(question)
     print("response is:", response.text)
     return response.text
+
+
+def load_decision_tree(file_path):
+    """Load the Graphviz DOT file containing the decision tree."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except FileNotFoundError:
+        print(f"Error: File '{file_path}' not found.")
+        return None
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        return None
+
+def analyze_tree_for_bias(tree_content):
+    """Send the decision tree to Gemini for bias analysis."""
+    if not tree_content:
+        return "Error: No tree content to analyze."
+    
+    prompt = f"""Please analyze the following decision tree (in Graphviz DOT format) for potential bias in the training dataset:
+
+{tree_content}
+
+Analyze the tree structure, decision splits, feature usage, and any patterns that might indicate bias in the underlying networking dataset."""
+    
+    response = chat.send_message(prompt)
+    return response.text
+
+
+if __name__ == "__main__":
+    tree_file_path = "trustee_tree_puffer_pruned.txt"
+    
+    tree_content = load_decision_tree(tree_file_path)
+    
+    if tree_content:
+        print("Decision tree loaded successfully.")
+        print(f"Tree content preview (first 200 chars): {tree_content[:200]}...")
+        
+        print("\nAnalyzing tree for bias...")
+        bias_analysis = analyze_tree_for_bias(tree_content)
+        print("\nBias Analysis Result:")
+        print(bias_analysis)
+    else:
+        print("Failed to load decision tree file.")
