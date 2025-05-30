@@ -11,13 +11,13 @@ netrep = pd.read_csv('../netrep_100ms.csv')
 # print(netrep.dtypes)
 
 # look at the statistical distribution of each column
-with open('stats.txt', 'w') as f:
-    f.write(netrep.describe().to_string())
-
 desc = netrep.describe()
 for category in ["delivery_rate", "cwnd", "in_flight", "min_rtt", "rtt", "size", "trans_time", "actual"]:
-    with open(f'stats_{category}.txt', 'w') as f:
+    with open(f'explore/stats_{category}.txt', 'w') as f:
         cat_desc = desc.loc[:, desc.columns.str.find(category) == 0]
-        print(cat_desc)
         f.write(cat_desc.to_string())
 
+print("unique prediction values: ", netrep["predict"].unique())
+
+with open('explore/results_out.txt', 'w') as f:
+    f.write(netrep[['predict', 'actual', 'error']].sort_values('predict', ascending=True).to_string())
