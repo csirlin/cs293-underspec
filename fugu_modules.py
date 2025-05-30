@@ -16,6 +16,7 @@ from trustee import ClassificationTrustee
 import graphviz
 from sklearn import tree
 import os
+from datetime import datetime
 # Constants
 BATCH_SIZE = 32
 # NUM_EPOCHS = 500
@@ -36,6 +37,31 @@ FUTURE_CHUNKS = 5
 TUNING = True
 CHECKPOINT = 100
 
+# class WrappedModel:
+#     def __init__(self, model):
+#         self.model = model
+#     def predict(self, x):
+#         print("x is ")
+#         print(x)
+#         if isinstance(x, pd.DataFrame) or isinstance(x, pd.Series):
+#             x = x.values
+#             print("x is now x.values")
+#             print(x.shape, "\n", x)
+#         if isinstance(x, np.ndarray):
+#             x = torch.tensor(x, dtype=torch.float64)
+#             print("x is now tensor")
+#             print(x.shape, "\n", x)
+#         if isinstance(x, torch.Tensor):
+#             x = x.to(dtype=torch.float64)
+#         self.model.eval()
+#         with torch.no_grad():
+#             res = self.model(x) 
+#             print("results before transformation:")
+#             print(res.shape, "\n", res)
+#             res = res.detach().cpu().numpy().squeeze()
+#         print("results after:")
+#         print(res.shape, "\n", res)
+#         return res
 
 class Model:
     #Model constants
@@ -370,15 +396,22 @@ class Model:
             print(f"Test Cross-Entropy Loss: {cross_entropy_loss}")
             print("Classification Report:")
             print(classification_report(test_output_discretized, class_preds, zero_division=0))
-            trustee = ClassificationTrustee(expert=self.model)
-            trustee.fit(pd_input, test_output_discretized, num_iter=10, num_stability_iter=2, samples_size=0.3, verbose=True)
+            
+            trustee = ClassificationTrustee(expert=self)
+            trustee.fit(pd_input, test_output_discretized, num_iter=10, 
+                        num_stability_iter=2, samples_size=0.3, verbose=True, 
+                        predict_method_name="predict")
             dt, pruned_dt, agreement, reward = trustee.explain()
             dt_y_pred = dt.predict(pd_input)
             print("Model explanation global fidelity report:")
             print(classification_report(class_preds, dt_y_pred))
-            dot_data = tree.export_graphviz(pruned_dt, class_names=[str(i)for i in range(21)], feature_names=self.model.COLUMNS,filled=True,rounded=True,special_characters=True)
+            dot_data = tree.export_graphviz(pruned_dt, 
+                                            class_names=[str(i)for i in range(21)], 
+                                            feature_names=self.COLUMNS,
+                                            filled=True,rounded=True,
+                                            special_characters=True)
             graph = graphviz.Source(dot_data)
-            fil = graph.render(output_loc + "trustee_tree_puffer_pruned", format="png")
+            fil = graph.render(output_loc + f"trustee_{datetime.now()}", format="png")
 
     def evaluate(self, test_input, test_output, save_loc):
         self.model.eval()
