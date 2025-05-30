@@ -86,7 +86,18 @@ if __name__ == "__main__":
         print("\nBias Analysis Result:")
         print(bias_analysis)
 
-        proposed_changes = ask("What changes would you propose to mitigate any identified bias in the decision tree? Please highlight SPECIFIC biased features or decisions.")
+        changes_format = """{
+"mitigation_strategies": [
+    {
+      "biased_feature": str, // From the decision tree analysis, this feature was identified as biased.
+      "strategy": str // A specific strategy to mitigate bias in the training data, such as re-sampling or feature engineering.
+    },
+    {
+      "biased_feature": str, // Another biased feature identified in the decision tree.
+      "strategy": str // Another strategy to mitigate bias.
+    },
+]"""
+        proposed_changes = ask("What changes would you propose to mitigate any identified bias in the decision tree? Please highlight SPECIFIC biased features or decisions. Please respond in the following JSON format:\n" + changes_format)
         print("\nProposed Changes to Mitigate Bias:")
         print(proposed_changes)
 
