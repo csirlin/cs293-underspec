@@ -234,43 +234,17 @@ class Model:
                                             special_characters=True)
             graph = graphviz.Source(dot_data)
             fil = graph.render(output_folder + "trustee", format="png")
+            os.rename(output_folder + "trustee", output_folder + "trustee.dot")
 
     def evaluate(self, test_input, test_output, output_folder=None):
         if output_folder is not None:
             os.makedirs(output_folder, exist_ok=True)
         self.model.eval()
         pd_input = pd.DataFrame(test_input, columns=self.COLUMNS)
-        # pd_input = pd.DataFrame(test_input.cpu().numpy(), columns=self.COLUMNS)
 
-        # cnt = 0
         with torch.no_grad():
             predictions = self.predict_cont(pd_input)
-            # Print metrics
-            # sum = 0
-            # print("Length of predictions: ", len(predictions))
-            # print("Length of actual: ", len(test_output))
-            # calculate the diffrerence between the predictions and the actual values and save it in a list diffs
-            # diffs = []
-            # to_save = []
-            # for i in range(len(predictions)):
-            #     trans_times = [0]* 10
-            #     for j in range (8):
-            #         trans_times[j] = pd_input .iloc[i][f'trans_time{j}'] 
-            #     cnt +=1 
-            #     # if cnt % 1000 == 0:
-            #     #     print(cnt)        
-            #     trans_times[8] = predictions[i]
-            #     trans_times[9] = test_output[i]
-            #     to_save.append(trans_times)
-                # diffs.append(predictions[i] - test_output[i])
-                # sum += abs(diffs[i])
-            # save the to save list to a csv file
-            # pd.DataFrame(to_save).to_csv(save_loc, index=False)
-            # save diffs to a csv file
-            # pd.DataFrame(diffs).to_csv('/mnt/md0/jaber/puffer_trustee/ttpABR_14days/diffs.csv', index=False)
-            # Mean Squared Error
             mse_loss = mean_squared_error(test_output, predictions)
-            # mse_loss = mean_squared_error(test_output.cpu().numpy(), predictions.cpu().numpy())
 
             print(f"Test Mean Squared Error: {mse_loss}")
             if output_folder is not None:
