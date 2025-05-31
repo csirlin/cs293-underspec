@@ -1,15 +1,9 @@
-# split data into categories to introduce and test bias
+# split data into limited categories to introduce and test bias
 
 import pandas as pd
 import numpy as np
 import os
-
-# split into ascending and descending based on the following variables:
-# delivery_rate
-# cwnd
-# size
-# in_flight?
-# inverse trans_time?
+import config
 
 # split the data into long and short df's based on the average {group} value
 def long_short_split(df, title, group, threshold, max_index=8):
@@ -41,33 +35,43 @@ def net_ascending(row):
 
     return net
 
-# split the data into all categories
+# split the data into all categories being tested
 for title in ["netrep_100ms", "oct_100ms"]:
     df = pd.read_csv(f"data/{title}.csv")
     
     # ascending-descending split
-    ascending = df[df.apply(net_ascending, axis=1) > 0]
-    descending = df[df.apply(net_ascending, axis=1) < 0]
+    if config.TEST_ASCEND_DESCEND:
+        ascending = df[df.apply(net_ascending, axis=1) > 0]
+        descending = df[df.apply(net_ascending, axis=1) < 0]
 
-    os.makedirs(f"data/ascend_descend", exist_ok=True)
-    ascending.to_csv(f"data/ascend_descend/{title}_ascending.csv", index=False)
-    descending.to_csv(f"data/ascend_descend/{title}_descending.csv", index=False)
-
-    # split the data into long_rtt and short_rtt based on the rtt value
-    long_short_split(df, title, 'rtt', 0.97)
-
-    # split the data into long_trans_time and short_trans_time based on the trans_time value
-    long_short_split(df, title, 'trans_time', 0.97, max_index=7)
-
-    # split the data into long_delivery_rate and short_delivery_rate based on the delivery_rate value
-    long_short_split(df, title, 'delivery_rate', 0.77)
+        os.makedirs(f"data/ascend_descend", exist_ok=True)
+        ascending.to_csv(f"data/ascend_descend/{title}_ascending.csv", index=False)
+        descending.to_csv(f"data/ascend_descend/{title}_descending.csv", index=False)
     
     # split the data into long_cwnd and short_cwnd based on the cwnd value
-    long_short_split(df, title, 'cwnd', 0.96)
+    if config.TEST_CWND_LEN:
+        long_short_split(df, title, 'cwnd', 0.96)
+
+    # split the data into long_delivery_rate and short_delivery_rate based on 
+    # the delivery_rate value
+    if config.TEST_DELIVERY_RATE_LEN:
+        long_short_split(df, title, 'delivery_rate', 0.77)
+    
+    # split the data into long_rtt and short_rtt based on the rtt value
+    if config.TEST_RTT_LEN:
+        long_short_split(df, title, 'rtt', 0.97)
+
+    # split the data into long_trans_time and short_trans_time based on the 
+    # trans_time value
+    if config.TEST_TRANS_TIME_LEN:
+        long_short_split(df, title, 'trans_time', 0.97, max_index=7)
 
     # dropping params
-    for param in ["delivery_rate", "cwnd", "in_flight", "min_rtt", "rtt", "size", "trans_time"]:
-        columns_to_keep = [col for col in df.columns if col.startswith(param)]
-        df_dropped = df[columns_to_keep]
-        os.makedirs(f"data/dropped_params", exist_ok=True)
-        df_dropped.to_csv(f"data/dropped_params/{title}_{param}.csv", index=False)
+    # if config.TEST_DROPPED_PARAMS:
+    #     for param in ["delivery_rate", "cwnd", "in_flight", "min_rtt", "rtt", 
+    #                   "size", "trans_time"]:
+    #         columns_to_keep = [col for col in df.columns if col.startswith(param)]
+    #         df_dropped = df[columns_to_keep]
+    #         os.makedirs(f"data/dropped_params", exist_ok=True)
+    #         df_dropped.to_csv(f"data/dropped_params/{title}_{param}.csv", 
+    #                           index=False)
