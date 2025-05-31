@@ -5,6 +5,7 @@ The goal of our project is to streamline the process of identifying shortcut lea
 
 ## Instructions for Reproducing Results
 
+0. Get python 3.8.18
 1. Clone github repo
 2. Create a folder cs293-underspec/data
 3. Download a .csv file for a purposely skewed dataset from this [Datasets](https://drive.google.com/drive/u/0/folders/1pguyQTppb_Tkx7trTBFLIMRQpi-62t51) folder (Note: files were too large to be stored on GitHub). Descriptions of the skewed datasets and their expected biases are listed in the "What are the skewed datasets?" section.
