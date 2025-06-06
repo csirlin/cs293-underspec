@@ -73,7 +73,7 @@ Analyze the tree structure, decision splits, feature usage, and any patterns tha
 
 
 if __name__ == "__main__":
-    tree_file_path = "trustee_tree_puffer_pruned.txt"
+    tree_file_path = "evals/ascend_descend/train_ascending_eval_ascending/trustee.dot"
     
     tree_content = load_decision_tree(tree_file_path)
     
@@ -90,10 +90,12 @@ if __name__ == "__main__":
 "mitigation_strategies": [
     {
       "biased_feature": str, // From the decision tree analysis, this feature was identified as biased.
+      "causes": str, // A brief explanation of HOW and IN WHAT WAY this feature is biased.
       "strategy": str // A specific strategy to mitigate bias in the training data, such as re-sampling or feature engineering.
     },
     {
       "biased_feature": str, // Another biased feature identified in the decision tree.
+      "causes": str, // Another brief explanation.
       "strategy": str // Another strategy to mitigate bias.
     },
 ]"""
